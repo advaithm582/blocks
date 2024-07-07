@@ -31,6 +31,28 @@ import java.time.ZonedDateTime;
  * @author Advaith Menon
  */
 public class Task {
+    // Constants
+
+    /**
+     * Column identifier for ID.
+     */
+    public static final int ID = 0;
+
+    /**
+     * Column identifier for Title.
+     */
+    public static final int TITLE = 1;
+
+    /**
+     * Column identifier for details.
+     */
+    public static final int DETAILS = 2;
+
+    /**
+     * Column identifier for the deadline.
+     */
+    public static final int DEADLINE = 3;
+
     // Properties
 
     /**
