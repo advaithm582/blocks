@@ -21,7 +21,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple class to enable hierarchical loading of properties files from multiple
@@ -34,8 +39,9 @@ import java.util.Properties;
  * @author Advaith Menon
  */
 public class ConfigManager {
-    // the list of configuration files to load
-    private InputStream[] inputs;
+    // logger
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ConfigManager.class);
 
     // the File to save the configuration files to.
     private File saveLoc;
@@ -57,16 +63,12 @@ public class ConfigManager {
             throws IOException {
         if (inputs == null || inputs.length == 0) {
             throw new IllegalArgumentException("inputs cannot be null/empty");
-        } else if (saveLoc == null) {
-            throw new IllegalArgumentException("saveLoc cannot be null");
-        }
-
-        this.inputs = inputs;
+        } 
 
         // ref to saveLoc
         this.saveLoc = saveLoc;
 
-        load();
+        load(inputs);
     }
 
     /**
@@ -80,7 +82,7 @@ public class ConfigManager {
      * java.util.Properties
      * @throws IllegalArgumentException if files is null or empty.
      */
-    public ConfigManager(File... files)
+    public static ConfigManager ofFiles(File... files)
             throws FileNotFoundException, IOException {
         if (files == null || files.length == 0) {
             throw new IllegalArgumentException("files cannot be null/empty");
@@ -88,11 +90,16 @@ public class ConfigManager {
 
         // create an array of InputStreams
         InputStream[] inputs = new InputStream[files.length];
-        for (File f: files) {
-            inputs[i] = new FileInputStream(f);
+        for (int i = 0; i < files.length; ++i) {
+            inputs[i] = new FileInputStream(files[i]);
         }
 
-        this(inputs, files[files.length - 1]);
+        ConfigManager x = new ConfigManager(inputs, files[files.length - 1]);
+        for (InputStream i: inputs) {
+            i.close();
+        }
+
+        return x;
     }
 
     /**
@@ -102,7 +109,7 @@ public class ConfigManager {
      *
      * @throws IOException if there was an error encountered by java Properties
      */
-    private void load() throws IOException {
+    private void load(InputStream[] inputs) throws IOException {
         // create a new Properties array
         props = new Properties[inputs.length];
 
@@ -170,12 +177,16 @@ public class ConfigManager {
      * #save(int,java.io.File)} method.
      */
     public void save() {
+        if (saveLoc == null) {
+            // fail
+            LOGGER.warn("save location not set, ConfigManager.save() silently"
+                    + " failed.");
+            return;
+        }
         try {
             save(props.length - 1, saveLoc);
-        } catch (IOException | FileNotFoundException e) {
-            // TODO: log using SLF4J
+        } catch (IOException e) {
+            LOGGER.warn("Did not save configuration file.", e);
         }
     }
-
-     
 }
