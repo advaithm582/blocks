@@ -22,14 +22,15 @@ package net.ddns.advaith.blocks.model;
  *
  * @since 0.1.0
  * @author Advaith Menon
- * @param T The object this DAO deals with
+ * @param <T> The object this DAO deals with
  */
 public interface GenericDAO<T> {
     /**
      * Adds a new T to the storage backend.
      *
      * @param item The item to add
-     * @throws DAOException if the operation failed.
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     void add(T item);
 
@@ -38,7 +39,8 @@ public interface GenericDAO<T> {
      *
      * @param item The item to update
      * @throws IllegalArgumentException if the ID is -1
-     * @throws DAOException if the operation failed
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     void update(T item);
 
@@ -47,7 +49,8 @@ public interface GenericDAO<T> {
      *
      * @param item The item to delete
      * @throws IllegalArgumentException if the ID is -1
-     * @throws DAOExcpetion if the operation failed
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     void delete(T item);
 
@@ -56,18 +59,20 @@ public interface GenericDAO<T> {
      *
      * @param id The ID of the item to delete
      * @throws IllegalArgumentException if the ID is less than 0
-     * @throws DAOException if the operation failed
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     void delete(long id);
 
     /**
      * Get all the items in the storage backend, but in a {@link
-     * net.ddns.advaith.blocks.Paginated} object. This is definitely more
+     * net.ddns.advaith.blocks.model.Paginated} object. This is definitely more
      * efficient and to be preferred over {@link #fetchAll()}.
+     * <b>NOTE:</b> When implementing this, make the Paginated object lazy load
      *
      * @return A paginated version of all the objects.
-     * @throws DAOException if the operation failed
-     * @implNote When implementing this, make the Paginated object lazy load
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     Paginated<T> fetchAll();
 
@@ -78,7 +83,8 @@ public interface GenericDAO<T> {
      * respective models.
      * @param target What the column should equal.
      * @return A Paginated of the tasks.
-     * @throws DAOException if the operation failed
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     Paginated<T> fetchEquals(int column, Object target);
 
@@ -91,7 +97,8 @@ public interface GenericDAO<T> {
      *
      * @param query The Select Query to perform.
      * @return a Paginated result set
-     * @throws DAOException if the operation failed at the database level
+     * @throws net.ddns.advaith.blocks.model.DAOException if the operation could
+     * not be completed or failed for any reason.
      */
     Paginated<T> query(Query query);
 }

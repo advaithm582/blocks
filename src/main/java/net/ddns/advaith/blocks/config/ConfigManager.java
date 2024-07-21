@@ -81,6 +81,7 @@ public class ConfigManager {
      * @throws IOException if there was an error encountered by
      * java.util.Properties
      * @throws IllegalArgumentException if files is null or empty.
+     * @return A new ConfigManager object
      */
     public static ConfigManager ofFiles(File... files)
             throws FileNotFoundException, IOException {
@@ -124,10 +125,10 @@ public class ConfigManager {
 
     /**
      * Get the merged configuration.
+     * <b>NOTE</b> Internally coded using the {@link #get(int)} method. No need
+     * to override when inheriting.
      *
      * @return The lowermost level of the Properites.
-     * @implNote Internally coded using the {@link #get(int)} method. No need to
-     * override when inheriting.
      */
     public Properties get() {
         return get(props.length - 1);

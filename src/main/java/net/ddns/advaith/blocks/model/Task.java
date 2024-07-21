@@ -234,8 +234,8 @@ public class Task {
     /**
      * Get the deadline as a LocalDate. This allows for semi-method
      * compatibility with the old {@link
-     * net.ddns.advaith.blocks.TodoItem#getDeadline()} method, though the name
-     * is different.
+     * net.ddns.advaith.blocks.datamodel.TodoItem#getDeadline()} method, though
+     * the name is different.
      *
      * @return The deadline, as a LocalDate.
      */

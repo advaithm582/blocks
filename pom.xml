@@ -154,6 +154,9 @@
         <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>3.7.0</version>
+            <configuration>
+                <additionalOptions>-package</additionalOptions>
+            </configuration>
         </plugin>
     </plugins>
 </reporting>

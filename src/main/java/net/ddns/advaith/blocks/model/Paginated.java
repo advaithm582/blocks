@@ -31,7 +31,7 @@ import java.util.Iterator;
  * This class still implements the Iterator, though it is not recommended.
  * @since 0.1.0
  * @author Advaith Menon
- * @param T The object this Paginated returns a list of
+ * @param <T> The object this Paginated returns a list of
  */
 public interface Paginated<T> extends Iterable {
     /**
@@ -40,7 +40,7 @@ public interface Paginated<T> extends Iterable {
      * is called, this method will throw an IllegalStateException
      * instead.
      *
-     * @implNote If you are writing an implementation, be sure to take the
+     * <b>Note:</b> If you are writing an implementation, be sure to take the
      * defaut value of this class from (TODO: fill the class name here) with the
      * key (TODO:fill the key here). DO NOT HARDCODE A DEFAULT VALUE!
      *
