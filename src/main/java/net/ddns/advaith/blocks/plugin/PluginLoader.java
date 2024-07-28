@@ -17,6 +17,7 @@
 
 package net.ddns.advaith.blocks.plugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.InputStreamReader;
@@ -25,6 +26,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -37,6 +39,8 @@ import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.ddns.advaith.blocks.config.ConfigManager;
+
 /**
  * Class that loads plugins.
  *
@@ -48,8 +52,45 @@ public class PluginLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             PluginLoader.class);
 
+    // Current Instance
+    private static PluginLoader instance;
+
     // List of all the loaded plugins. This is a HashMap from UUID to Plugin.
     private Map<UUID, PluginWrapper> plugins;
+
+    /**
+     * Get an instance of the PluginLoader class. This works by loading all
+     * plugins from $INSTALLDIR/plugins, and the configuration property {@code
+     * net.ddns.advaith.blocks.pluginsDir}, if it exists.
+     *
+     * @return A cached version of the PluginLoader, which is instantiated once
+     * using the above process. It is not possible to run this process again
+     * after the plugins have been loaded. This will never be null.
+     * @throws NullPointerException if there was any error in creating the
+     * object (thus leaving it internally as null).
+     */
+    public static PluginLoader getInstance() {
+        if (instance == null) {
+            instance = new PluginLoader();
+            Path primary;
+            try {
+                primary = new File(PluginLoader.class
+                        .getProtectionDomain().getCodeSource().getLocation()
+                        .toURI()).getParentFile().toPath();
+            } catch (URISyntaxException e) {
+                LOGGER.error("Could not get primary directory", e);
+                throw new NullPointerException("Could not create instance");
+            }
+            instance.loadPluginsFromDirectory(primary.resolve("plugins"), true);
+            String pluginsDir = ConfigManager.getInstance().getProperty(
+                    "net.ddns.advaith.blocks.pluginsDir");
+            if (pluginsDir != null) {
+                instance.loadPluginsFromDirectory(Paths.get(pluginsDir), true);
+            }
+        }
+        return instance;
+    }
+
 
     /**
      * Create a new PluginLoader.

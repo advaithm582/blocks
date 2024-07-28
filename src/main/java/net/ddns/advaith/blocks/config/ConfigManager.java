@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -43,11 +44,78 @@ public class ConfigManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ConfigManager.class);
 
+    // The current instance of the ConfigManager. This loads 3 files:
+    // 1. In class resources
+    // 2. In the user directory (~/.blocks/blocks.properties)
+    // 3. In the current directory (./blocks.properties)
+    public static ConfigManager currentInstance;
+
     // the File to save the configuration files to.
     private File saveLoc;
 
     // the properties instances corresponding to each of these files
     private Properties[] props;
+
+    /**
+     * Get an instance of this Configmanager, with Blocks configuration files
+     * loaded from the class resources, user directory and current directory.
+     *
+     * @return A ConfigManager instance as described above.
+     */
+    public static ConfigManager getInstance() {
+        if (currentInstance == null) {
+            InputStream[] inputs = new InputStream[4];
+            int i = 0;
+            // class props
+            inputs[i++] = ConfigManager.class.getResourceAsStream(
+                    "default-profile.properties");
+            // installation directory
+            try {
+                inputs[i++] = new FileInputStream(
+                        new File(new File(
+                                ConfigManager.class.getProtectionDomain()
+                                .getCodeSource().getLocation().toURI())
+                                .getParent() + "blocks.properties"));
+            } catch (FileNotFoundException e) {
+                LOGGER.info("No configuration profile found in installation"
+                        + " directory.");
+            } catch (URISyntaxException e) {
+                LOGGER.error("Could not get installation directory.", e);
+            }
+
+            // user directory
+
+            try {
+                inputs[i++] = new FileInputStream(
+                        new File(System.getProperty("user.home")
+                                + "/.blocks/blocks.properties"));
+            } catch (FileNotFoundException e) {
+                LOGGER.info("No configuration profile found in user directory.");
+            }
+
+            // working directory
+
+            try {
+                inputs[i++] = new FileInputStream("blocks.properties");
+            } catch (FileNotFoundException e) {
+                LOGGER.info("No configuration profile found in working "
+                        + "directory.");
+            }
+
+            // copy to new array
+            InputStream[] newInputs = new InputStream[i];
+            System.arraycopy(inputs, 0, newInputs, 0, i);
+
+            try {
+                currentInstance = new ConfigManager(newInputs, null);
+            } catch (IOException e) {
+                LOGGER.error("Could not load configuration files.", e);
+                throw new NullPointerException(
+                        "Current configmanaer instance is null.");
+            }
+        }
+        return currentInstance;
+    }
 
     /**
      * Create a new Configuration Manager.
@@ -130,8 +198,18 @@ public class ConfigManager {
      *
      * @return The lowermost level of the Properites.
      */
-    public Properties get() {
+    final public Properties get() {
         return get(props.length - 1);
+    }
+
+    /**
+     * Alias for get().getProperty(...).
+     *
+     * @param key The property key.
+     * @return The value in the property list with the specified key value.
+     */
+    final public String getProperty(String key) {
+        return get().getProperty(key);
     }
 
     /**
